@@ -1,0 +1,39 @@
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  window.APP_ENV = isLocalhost ? "development" : "production";
+  const configScript = document.createElement("script");
+  configScript.src = isLocalhost
+    ? "./assets/js/firebase-config.local.js"
+    : "./assets/js/firebase-config.js";
+  document.head.appendChild(configScript);
+</script>
+
+<!-- Inisialisasi Firebase setelah config dimuat -->
+<script>
+  window.addEventListener("load", () => {
+    const interval = setInterval(() => {
+      if (window.FIREBASE_CONFIG) {
+        firebase.initializeApp(window.FIREBASE_CONFIG);
+        console.log("✅ Firebase Initialized:", location.hostname);
+        clearInterval(interval);
+
+        // ✅ Load auth.js setelah Firebase siap
+        const authScript = document.createElement("script");
+        authScript.src = "./assets/js/auth.js";
+        document.body.appendChild(authScript);
+      }
+    }, 50);
+  });
+</script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const ionChip = document.getElementById("env-badge");
+    if (window.APP_ENV === "development") {
+      ionChip.style.display = "block";
+    }
+  });
+</script>
