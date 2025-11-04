@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Assistant</title>
+    
+    <!-- Ionic Core CDN -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --ion-color-primary: #3880ff;
+            --ion-color-secondary: #3dc2ff;
+            --ion-color-tertiary: #5260ff;
+            --ion-color-success: #2dd36f;
+            --ion-color-warning: #ffc409;
+            --ion-color-danger: #eb445a;
+            --ion-color-dark: #222428;
+            --ion-color-medium: #92949c;
+            --ion-color-light: #f4f5f8;
+        }
+
+        .chat-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--ion-color-light);
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: var(--ion-color-primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: var(--ion-color-dark);
+            border: 1px solid var(--ion-color-medium);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            max-width: 70%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--ion-color-medium);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .input-container {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid var(--ion-color-medium);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+            overflow-x: auto;
+        }
+
+        .quick-action-btn {
+            white-space: nowrap;
+            font-size: 0.8rem;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .repo-analysis {
+            background: #e8f4fd;
+            border: 1px solid #b6d7f2;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .error-fix {
+            background: #ffeaa7;
+            border: 1px solid #fdcb6e;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .menu-content {
+            --width: 300px;
+        }
+
+        .conversation-item {
+            --padding-start: 0;
+            --inner-padding-end: 0;
+        }
+
+        .conversation-preview {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <ion-app>
+        <!-- Main Layout -->
+        <ion-split-content when="lg">
+            <!-- Menu Sidebar -->
+            <ion-menu side="start" content-id="main-content" class="menu-content">
+                <ion-header>
+                    <ion-toolbar color="primary">
+                        <ion-title>Conversations</ion-title>
+                    </ion-toolbar>
+                </ion-header>
+                <ion-content>
+                    <ion-list>
+                        <ion-item button class="conversation-item" onclick="createNewConversation()">
+                            <ion-icon name="add-circle" slot="start"></ion-icon>
+                            <ion-label>
+                                <h3>New Chat</h3>
+                                <p class="conversation-preview">Start a new conversation</p>
+                            </ion-label>
+                        </ion-item>
+                        <div id="conversations-list">
+                            <!-- Conversations will be loaded here -->
+                        </div>
+                    </ion-list>
+                </ion-content>
+            </ion-menu>
+
+            <!-- Main Content -->
+            <div class="ion-page" id="main-content">
+                <ion-header>
+                    <ion-toolbar>
+                        <ion-buttons slot="start">
+                            <ion-menu-button></ion-menu-button>
+                        </ion-buttons>
+                        <ion-title>AI Code Assistant</ion-title>
+                        <ion-buttons slot="end">
+                            <ion-button onclick="toggleMode()">
+                                <ion-icon name="code-slash" id="mode-icon"></ion-icon>
+                            </ion-button>
+                            <ion-button onclick="clearChat()">
+                                <ion-icon name="trash"></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                    </ion-toolbar>
+                </ion-header>
+
+                <ion-content class="chat-container">
+                    <!-- Messages Container -->
+                    <div class="messages-container" id="messages-container">
+                        <!-- Messages will be appended here -->
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions" id="quick-actions">
+                        <ion-button size="small" class="quick-action-btn" onclick="quickAction('chat')">
+                            <ion-icon name="chatbubble" slot="start"></ion-icon>
+                            Chat
+                        </ion-button>
+                        <ion-button size="small" class="quick-action-btn" onclick="quickAction('analyze')">
+                            <ion-icon name="analytics" slot="start"></ion-icon>
+                            Analyze Repo
+                        </ion-button>
+                        <ion-button size="small" class="quick-action-btn" onclick="quickAction('generate')">
+                            <ion-icon name="code" slot="start"></ion-icon>
+                            Generate Code
+                        </ion-button>
+                        <ion-button size="small" class="quick-action-btn" onclick="quickAction('fix')">
+                            <ion-icon name="bug" slot="start"></ion-icon>
+                            Fix Error
+                        </ion-button>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="input-container">
+                        <div class="input-row">
+                            <div class="input-field">
+                                <ion-textarea 
+                                    id="message-input"
+                                    placeholder="Type your message..."
+                                    rows="1"
+                                    auto-grow
+                                    enterkeyhint="send"
+                                ></ion-textarea>
+                            </div>
+                            <ion-button onclick="sendMessage()" id="send-button">
+                                <ion-icon name="send"></ion-icon>
+                            </ion-button>
+                        </div>
+                    </div>
+                </ion-content>
+            </div>
+        </ion-split-content>
+
+        <!-- Modals -->
+        <ion-modal id="repo-modal" trigger="open-repo-modal">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title>Analyze Repository</ion-title>
+                    <ion-buttons slot="end">
+                        <ion-button onclick="dismissModal('repo-modal')">Close</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-item>
+                    <ion-label position="stacked">GitHub Repository URL</ion-label>
+                    <ion-input id="repo-url" placeholder="https://github.com/username/repo"></ion-input>
+                </ion-item>
+                <ion-button expand="block" onclick="analyzeRepository()" class="ion-margin-top">
+                    Analyze Repository
+                </ion-button>
+            </ion-content>
+        </ion-modal>
+
+        <ion-modal id="generate-modal" trigger="open-generate-modal">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title>Generate Code</ion-title>
+                    <ion-buttons slot="end">
+                        <ion-button onclick="dismissModal('generate-modal')">Close</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-item>
+                    <ion-label position="stacked">Requirements</ion-label>
+                    <ion-textarea id="code-requirements" placeholder="Describe what code you want to generate..."></ion-textarea>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Language</ion-label>
+                    <ion-select id="code-language" value="javascript">
+                        <ion-select-option value="javascript">JavaScript</ion-select-option>
+                        <ion-select-option value="python">Python</ion-select-option>
+                        <ion-select-option value="java">Java</ion-select-option>
+                        <ion-select-option value="php">PHP</ion-select-option>
+                        <ion-select-option value="go">Go</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-button expand="block" onclick="generateCode()" class="ion-margin-top">
+                    Generate Code
+                </ion-button>
+            </ion-content>
+        </ion-modal>
+
+        <ion-modal id="fix-modal" trigger="open-fix-modal">
+            <ion-header>
+                <ion-toolbar>
+                    <ion-title>Fix Code Error</ion-title>
+                    <ion-buttons slot="end">
+                        <ion-button onclick="dismissModal('fix-modal')">Close</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-header>
+            <ion-content class="ion-padding">
+                <ion-item>
+                    <ion-label position="stacked">Code with Error</ion-label>
+                    <ion-textarea id="error-code" placeholder="Paste your code here..."></ion-textarea>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Error Message</ion-label>
+                    <ion-input id="error-message" placeholder="Describe or paste the error..."></ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="stacked">Language</ion-label>
+                    <ion-select id="error-language" value="javascript">
+                        <ion-select-option value="javascript">JavaScript</ion-select-option>
+                        <ion-select-option value="python">Python</ion-select-option>
+                        <ion-select-option value="java">Java</ion-select-option>
+                    </ion-select>
+                </ion-item>
+                <ion-button expand="block" onclick="fixError()" class="ion-margin-top">
+                    Fix Error
+                </ion-button>
+            </ion-content>
+        </ion-modal>
+    </ion-app>
+
+    <script>
+        // Global variables
+        let currentConversation = null;
+        let conversations = [];
+        let isAITyping = false;
+
+        // Backend URL
+        const BACKEND_URL = 'https://ai-androidbutut.androidbutut.workers.dev';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConversations();
+            createNewConversation();
+            setupEventListeners();
+        });
+
+        // Event listeners
+        function setupEventListeners() {
+            const messageInput = document.getElementById('message-input');
+            
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        // Conversation management
+        function createNewConversation() {
+            currentConversation = {
+                id: Date.now().toString(),
+                title: 'New Conversation',
+                messages: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            conversations.unshift(currentConversation);
+            saveConversations();
+            renderConversation();
+            closeMenu();
+        }
+
+        function loadConversation(conversationId) {
+            currentConversation = conversations.find(conv => conv.id === conversationId);
+            if (currentConversation) {
+                renderConversation();
+                closeMenu();
+            }
+        }
+
+        function renderConversation() {
+            const messagesContainer = document.getElementById('messages-container');
+            messagesContainer.innerHTML = '';
+
+            if (currentConversation && currentConversation.messages.length > 0) {
+                currentConversation.messages.forEach(message => {
+                    addMessageToUI(message.text, message.type, message.timestamp, message.metadata);
+                });
+            } else {
+                showWelcomeMessage();
+            }
+
+            updateConversationsList();
+            scrollToBottom();
+        }
+
+        function showWelcomeMessage() {
+            const welcomeMessage = `Halo! Saya AI Code Assistant. Saya bisa membantu Anda dengan:
+
+💬 **Diskusi Programming** - Tanya apa saja tentang coding
+🔍 **Analisis Repository** - Analisis repo GitHub dari URL
+💻 **Generate Kode** - Buat kode berdasarkan requirements
+🐛 **Fix Error** - Perbaiki error dalam kode
+
+Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
+            
+            addMessageToUI(welcomeMessage, 'bot');
+        }
+
+        // Message handling
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            // Add user message to UI
+            addMessageToUI(message, 'user');
+            messageInput.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                // Remove typing indicator
+                hideTypingIndicator();
+
+                if (data.success) {
+                    addMessageToUI(data.response, 'bot');
+                    
+                    // Save messages to conversation
+                    if (currentConversation) {
+                        currentConversation.messages.push(
+                            { type: 'user', text: message, timestamp: new Date().toISOString() },
+                            { type: 'bot', text: data.response, timestamp: new Date().toISOString() }
+                        );
+                        
+                        // Update conversation title if it's the first message
+                        if (currentConversation.messages.length === 2) {
+                            currentConversation.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                        }
+                        
+                        saveConversations();
+                        updateConversationsList();
+                    }
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessageToUI(`Error: ${error.message}`, 'bot');
+            }
+        }
+
+        // Quick actions
+        function quickAction(action) {
+            switch (action) {
+                case 'chat':
+                    document.getElementById('message-input').focus();
+                    break;
+                case 'analyze':
+                    document.getElementById('repo-modal').isOpen = true;
+                    break;
+                case 'generate':
+                    document.getElementById('generate-modal').isOpen = true;
+                    break;
+                case 'fix':
+                    document.getElementById('fix-modal').isOpen = true;
+                    break;
+            }
+        }
+
+        // Repository analysis
+        async function analyzeRepository() {
+            const repoUrl = document.getElementById('repo-url').value.trim();
+            
+            if (!repoUrl) {
+                showAlert('Error', 'Please enter a repository URL');
+                return;
+            }
+
+            dismissModal('repo-modal');
+            addMessageToUI(`Analyzing repository: ${repoUrl}`, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/analyze-repo`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        repoUrl: repoUrl
+                    })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.success) {
+                    const analysisMessage = `## 📊 Repository Analysis\n\n**Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
+                    addMessageToUI(analysisMessage, 'bot', null, { type: 'repo-analysis' });
+                    
+                    // Save to conversation
+                    if (currentConversation) {
+                        currentConversation.messages.push(
+                            { type: 'user', text: `Analyzing repository: ${repoUrl}`, timestamp: new Date().toISOString() },
+                            { type: 'bot', text: analysisMessage, timestamp: new Date().toISOString(), metadata: { type: 'repo-analysis' } }
+                        );
+                        saveConversations();
+                    }
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessageToUI(`Error analyzing repository: ${error.message}`, 'bot');
+            }
+        }
+
+        // Code generation
+        async function generateCode() {
+            const requirements = document.getElementById('code-requirements').value.trim();
+            const language = document.getElementById('code-language').value;
+            
+            if (!requirements) {
+                showAlert('Error', 'Please enter code requirements');
+                return;
+            }
+
+            dismissModal('generate-modal');
+            addMessageToUI(`Generate ${language} code: ${requirements}`, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/generate-code`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requirements: requirements,
+                        language: language
+                    })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.success) {
+                    const codeMessage = `## 💻 Generated ${data.language} Code\n\n\`\`\`${data.language}\n${data.code}\n\`\`\``;
+                    addMessageToUI(codeMessage, 'bot', null, { type: 'code-generation' });
+                    
+                    // Save to conversation
+                    if (currentConversation) {
+                        currentConversation.messages.push(
+                            { type: 'user', text: `Generate ${language} code: ${requirements}`, timestamp: new Date().toISOString() },
+                            { type: 'bot', text: codeMessage, timestamp: new Date().toISOString(), metadata: { type: 'code-generation' } }
+                        );
+                        saveConversations();
+                    }
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessageToUI(`Error generating code: ${error.message}`, 'bot');
+            }
+        }
+
+        // Error fixing
+        async function fixError() {
+            const code = document.getElementById('error-code').value.trim();
+            const error = document.getElementById('error-message').value.trim();
+            const language = document.getElementById('error-language').value;
+            
+            if (!code || !error) {
+                showAlert('Error', 'Please enter both code and error message');
+                return;
+            }
+
+            dismissModal('fix-modal');
+            addMessageToUI(`Fix ${language} error: ${error}`, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/fix-error`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        error: error,
+                        language: language
+                    })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.success) {
+                    const fixMessage = `## 🐛 Error Fixed\n\n**Original Error:** ${data.error}\n\n**Fixed Code:**\n\`\`\`${data.language}\n${data.fixed_code}\n\`\`\``;
+                    addMessageToUI(fixMessage, 'bot', null, { type: 'error-fix' });
+                    
+                    // Save to conversation
+                    if (currentConversation) {
+                        currentConversation.messages.push(
+                            { type: 'user', text: `Fix ${language} error: ${error}`, timestamp: new Date().toISOString() },
+                            { type: 'bot', text: fixMessage, timestamp: new Date().toISOString(), metadata: { type: 'error-fix' } }
+                        );
+                        saveConversations();
+                    }
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                addMessageToUI(`Error fixing code: ${error.message}`, 'bot');
+            }
+        }
+
+        // UI Helpers
+        function addMessageToUI(text, type, timestamp = null, metadata = null) {
+            const messagesContainer = document.getElementById('messages-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            
+            // Process message content
+            let processedText = text;
+            if (metadata && metadata.type === 'code-generation' || text.includes('```')) {
+                processedText = formatCodeBlocks(text);
+            }
+            
+            bubbleDiv.innerHTML = processedText;
+            
+            if (timestamp) {
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = new Date(timestamp).toLocaleTimeString();
+                bubbleDiv.appendChild(timeDiv);
+            } else {
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'message-time';
+                timeDiv.textContent = new Date().toLocaleTimeString();
+                bubbleDiv.appendChild(timeDiv);
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            scrollToBottom();
+        }
+
+        function formatCodeBlocks(text) {
+            return text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+                return `<div class="code-block"><pre><code>${code.trim()}</code></pre></div>`;
+            }).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\n/g, '<br>');
+        }
+
+        function showTypingIndicator() {
+            if (isAITyping) return;
+            
+            const messagesContainer = document.getElementById('messages-container');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            isAITyping = true;
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+            isAITyping = false;
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('messages-container');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Storage management
+        function saveConversations() {
+            localStorage.setItem('ai_conversations', JSON.stringify(conversations));
+        }
+
+        function loadConversations() {
+            const saved = localStorage.getItem('ai_conversations');
+            if (saved) {
+                conversations = JSON.parse(saved);
+                updateConversationsList();
+            }
+        }
+
+        function updateConversationsList() {
+            const listContainer = document.getElementById('conversations-list');
+            listContainer.innerHTML = '';
+
+            conversations.forEach(conv => {
+                const item = document.createElement('ion-item');
+                item.button = true;
+                item.className = 'conversation-item';
+                if (currentConversation && conv.id === currentConversation.id) {
+                    item.color = 'primary';
+                }
+                item.onclick = () => loadConversation(conv.id);
+                
+                const preview = conv.messages.length > 0 ? 
+                    conv.messages[0].text.substring(0, 40) + (conv.messages[0].text.length > 40 ? '...' : '') : 
+                    'No messages';
+                
+                item.innerHTML = `
+                    <ion-icon name="chatbubble" slot="start"></ion-icon>
+                    <ion-label>
+                        <h3>${conv.title}</h3>
+                        <p class="conversation-preview">${preview}</p>
+                    </ion-label>
+                `;
+                
+                listContainer.appendChild(item);
+            });
+        }
+
+        // Utility functions
+        function dismissModal(modalId) {
+            document.getElementById(modalId).isOpen = false;
+        }
+
+        function closeMenu() {
+            const menu = document.querySelector('ion-menu');
+            menu.close();
+        }
+
+        function clearChat() {
+            if (currentConversation) {
+                currentConversation.messages = [];
+                renderConversation();
+            }
+        }
+
+        function toggleMode() {
+            const modeIcon = document.getElementById('mode-icon');
+            const currentName = modeIcon.getAttribute('name');
+            modeIcon.setAttribute('name', currentName === 'code-slash' ? 'chatbubble' : 'code-slash');
+        }
+
+        async function showAlert(header, message) {
+            const alert = document.createElement('ion-alert');
+            alert.header = header;
+            alert.message = message;
+            alert.buttons = ['OK'];
+
+            document.body.appendChild(alert);
+            await alert.present();
+        }
+    </script>
+</body>
+</html>
