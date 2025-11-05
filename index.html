@@ -23,131 +23,96 @@
             --ion-color-medium: #92949c;
             --ion-color-light: #f4f5f8;
         }
-/* Improved Markdown Styling */
-.message-bubble {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
 
-.message-bubble h1, 
-.message-bubble h2, 
-.message-bubble h3 {
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    padding-bottom: 0.3em;
-}
+        /* Improved Markdown Styling */
+        .message-bubble {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
 
-.message-bubble ul, 
-.message-bubble ol {
-    padding-left: 1.5em;
-    margin: 0.5em 0;
-}
+        .message-bubble h1, 
+        .message-bubble h2, 
+        .message-bubble h3 {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 0.3em;
+        }
 
-.message-bubble pre {
-    margin: 0;
-    position: relative;
-}
+        .message-bubble ul, 
+        .message-bubble ol {
+            padding-left: 1.5em;
+            margin: 0.5em 0;
+        }
 
-/* Code Block with Copy Button */
-.code-block {
-    position: relative;
-    background: #f6f8fa;
-    border-radius: 6px;
-    margin: 1em 0;
-}
+        .message-bubble pre {
+            margin: 0;
+            position: relative;
+        }
 
-.code-block pre {
-    padding: 1em;
-    overflow-x: auto;
-}
+        /* Code Block with Copy Button */
+        .code-block {
+            position: relative;
+            background: #f6f8fa;
+            border-radius: 6px;
+            margin: 1em 0;
+        }
 
-.copy-button {
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    padding: 0.4em 0.8em;
-    background: #ffffff;
-    border: 1px solid #d1d5da;
-    border-radius: 6px;
-    font-size: 0.85em;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
+        .code-block pre {
+            padding: 1em;
+            overflow-x: auto;
+        }
 
-.code-block:hover .copy-button {
-    opacity: 1;
-}
+        .copy-button {
+            position: absolute;
+            top: 0.5em;
+            right: 0.5em;
+            padding: 0.4em 0.8em;
+            background: #ffffff;
+            border: 1px solid #d1d5da;
+            border-radius: 6px;
+            font-size: 0.85em;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
 
-/* Collapsible Sections */
-.collapsible {
-    border: 1px solid #d1d5da;
-    border-radius: 6px;
-    margin: 0.5em 0;
-}
+        .code-block:hover .copy-button {
+            opacity: 1;
+        }
 
-.collapsible-header {
-    padding: 0.8em;
-    background: #f6f8fa;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+        /* Collapsible Sections */
+        .collapsible {
+            border: 1px solid #d1d5da;
+            border-radius: 6px;
+            margin: 0.5em 0;
+        }
 
-.collapsible-content {
-    padding: 0.8em;
-    display: none;
-}
-
-.collapsible.open .collapsible-content {
-    display: block;
-}
-
-/* Fixed Bottom Elements */
-.fixed-bottom {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    border-top: 1px solid var(--ion-color-medium);
-    z-index: 100;
-}
-        ion-content.chat-container {
-            --padding-bottom: 0;
-            --padding-top: 0;
+        .collapsible-header {
+            padding: 0.8em;
+            background: #f6f8fa;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
-        .messages-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-            background: var(--ion-color-light);
+
+        .collapsible-content {
+            padding: 0.8em;
+            display: none;
         }
-        .quick-actions {
-            padding: 8px 10px;
+
+        .collapsible.open .collapsible-content {
+            display: block;
+        }
+
+        /* Fixed Bottom Elements */
+        .fixed-bottom {
+            position: sticky;
+            width: 100vw;
+            bottom: 0;
             background: white;
             border-top: 1px solid var(--ion-color-medium);
-        }
-        .input-container {
-            padding: 10px;
-            background: white;
-            border-top: none;
-        }
-        .message-bubble h1, .message-bubble h2, .message-bubble h3 {
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
-            font-weight: bold;
+            z-index: 100;
         }
 
-        .message-bubble ul, .message-bubble ol {
-            padding-left: 20px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        .message-bubble p {
-            margin-top: 0;
-            margin-bottom: 0.5em;
-        }
         .chat-container {
             height: 100vh;
             display: flex;
@@ -155,6 +120,7 @@
         }
 
         .messages-container {
+            height: 100vh;
             flex: 1;
             overflow-y: auto;
             padding: 10px;
@@ -253,8 +219,10 @@
         .quick-actions {
             display: flex;
             gap: 8px;
-            padding: 8px 0;
+            padding: 8px 10px;
             overflow-x: auto;
+            background: white;
+            border-top: 1px solid var(--ion-color-medium);
         }
 
         .quick-action-btn {
@@ -305,6 +273,15 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .conversation-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .delete-button {
+            color: var(--ion-color-danger);
+        }
     </style>
 </head>
 <body>
@@ -353,12 +330,12 @@
                     </ion-toolbar>
                 </ion-header>
 
-                <ion-content class="ion-content-full-height">
+                <ion-content class="chat-container">
                     <!-- Messages Container -->
                     <div class="messages-container" id="messages-container">
                         <!-- Messages will be appended here -->
                     </div>
-
+<div class="fixed-bottom">
                     <!-- Quick Actions -->
                     <div class="quick-actions" id="quick-actions">
                         <ion-button size="small" class="quick-action-btn" onclick="quickAction('chat')">
@@ -396,6 +373,7 @@
                             </ion-button>
                         </div>
                     </div>
+                </div>
                 </ion-content>
             </div>
         </ion-split-content>
@@ -496,8 +474,22 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             loadConversations();
-            createNewConversation();
             setupEventListeners();
+            
+            // Load last active conversation or create new one if none exists
+            if (conversations.length > 0) {
+                const lastActiveId = localStorage.getItem('lastActiveConversation');
+                if (lastActiveId) {
+                    const lastActive = conversations.find(conv => conv.id === lastActiveId);
+                    if (lastActive) {
+                        loadConversation(lastActiveId);
+                        return;
+                    }
+                }
+                loadConversation(conversations[0].id);
+            } else {
+                createNewConversation();
+            }
         });
 
         // Event listeners
@@ -525,6 +517,7 @@
             saveConversations();
             renderConversation();
             closeMenu();
+            saveLastActiveConversation();
         }
 
         function loadConversation(conversationId) {
@@ -532,6 +525,33 @@
             if (currentConversation) {
                 renderConversation();
                 closeMenu();
+                saveLastActiveConversation();
+            }
+        }
+
+        function deleteConversation(conversationId, event) {
+            event.stopPropagation();
+            
+            if (conversations.length <= 1) {
+                showAlert('Error', 'Cannot delete the only conversation');
+                return;
+            }
+            
+            const index = conversations.findIndex(conv => conv.id === conversationId);
+            if (index !== -1) {
+                conversations.splice(index, 1);
+                saveConversations();
+                
+                // If we deleted the current conversation, load another one
+                if (currentConversation && currentConversation.id === conversationId) {
+                    if (conversations.length > 0) {
+                        loadConversation(conversations[0].id);
+                    } else {
+                        createNewConversation();
+                    }
+                } else {
+                    updateConversationsList();
+                }
             }
         }
 
@@ -554,10 +574,10 @@
         function showWelcomeMessage() {
             const welcomeMessage = `Halo! Saya AI Code Assistant. Saya bisa membantu Anda dengan:
 
-💬 **Diskusi Programming** - Tanya apa saja tentang coding
-🔍 **Analisis Repository** - Analisis repo GitHub dari URL
-💻 **Generate Kode** - Buat kode berdasarkan requirements
-🐛 **Fix Error** - Perbaiki error dalam kode
+**Diskusi Programming** - Tanya apa saja tentang coding
+**Analisis Repository** - Analisis repo GitHub dari URL
+**Generate Kode** - Buat kode berdasarkan requirements
+**Fix Error** - Perbaiki error dalam kode
 
 Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
             
@@ -668,7 +688,7 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
                 hideTypingIndicator();
 
                 if (data.success) {
-                    const analysisMessage = `## 📊 Repository Analysis\n\n**Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
+                    const analysisMessage = `## Repository Analysis\n\n**Repository:** ${data.repository.full_name}\n\n${data.analysis}`;
                     addMessageToUI(analysisMessage, 'bot', null, { type: 'repo-analysis' });
                     
                     // Save to conversation
@@ -719,7 +739,7 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
                 hideTypingIndicator();
 
                 if (data.success) {
-                    const codeMessage = `## 💻 Generated ${data.language} Code\n\n\`\`\`${data.language}\n${data.code}\n\`\`\``;
+                    const codeMessage = `## Generated ${data.language} Code\n\n\`\`\`${data.language}\n${data.code}\n\`\`\``;
                     addMessageToUI(codeMessage, 'bot', null, { type: 'code-generation' });
                     
                     // Save to conversation
@@ -772,7 +792,7 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
                 hideTypingIndicator();
 
                 if (data.success) {
-                    const fixMessage = `## 🐛 Error Fixed\n\n**Original Error:** ${data.error}\n\n**Fixed Code:**\n\`\`\`${data.language}\n${data.fixed_code}\n\`\`\``;
+                    const fixMessage = `## Error Fixed\n\n**Original Error:** ${data.error}\n\n**Fixed Code:**\n\`\`\`${data.language}\n${data.fixed_code}\n\`\`\``;
                     addMessageToUI(fixMessage, 'bot', null, { type: 'error-fix' });
                     
                     // Save to conversation
@@ -804,9 +824,7 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
             
             // Process message content
             let processedText = text;
-            if (metadata && metadata.type === 'code-generation' || text.includes('```')) {
-                processedText = formatCodeBlocks(text);
-            }
+            processedText = formatMarkdown(text);
             
             bubbleDiv.innerHTML = processedText;
             
@@ -828,11 +846,39 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
             scrollToBottom();
         }
 
-        function formatCodeBlocks(text) {
-            return text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
-                return `<div class="code-block"><pre><code>${code.trim()}</code></pre></div>`;
-            }).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\n/g, '<br>');
+        function formatMarkdown(text) {
+            // Handle code blocks
+            let formattedText = text.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, code) {
+                const language = lang || 'text';
+                return `<div class="code-block"><pre><code class="language-${language}">${escapeHtml(code.trim())}</code></pre></div>`;
+            });
+            
+            // Handle inline code
+            formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Handle headers
+            formattedText = formattedText.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            formattedText = formattedText.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            formattedText = formattedText.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            
+            // Handle bold and italic
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Handle line breaks
+            formattedText = formattedText.replace(/\n/g, '<br>');
+            
+            // Handle lists
+            formattedText = formattedText.replace(/^\s*[\-\*\+]\s+(.*)/gim, '<li>$1</li>');
+            formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            return formattedText;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function showTypingIndicator() {
@@ -884,6 +930,12 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
             }
         }
 
+        function saveLastActiveConversation() {
+            if (currentConversation) {
+                localStorage.setItem('lastActiveConversation', currentConversation.id);
+            }
+        }
+
         function updateConversationsList() {
             const listContainer = document.getElementById('conversations-list');
             listContainer.innerHTML = '';
@@ -893,9 +945,8 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
                 item.button = true;
                 item.className = 'conversation-item';
                 if (currentConversation && conv.id === currentConversation.id) {
-                    item.color = 'primary';
+                    item.style.setProperty('--background', 'var(--ion-color-light)');
                 }
-                item.onclick = () => loadConversation(conv.id);
                 
                 const preview = conv.messages.length > 0 ? 
                     conv.messages[0].text.substring(0, 40) + (conv.messages[0].text.length > 40 ? '...' : '') : 
@@ -907,8 +958,14 @@ Pilih salah satu menu di bawah atau ketik pertanyaan Anda!`;
                         <h3>${conv.title}</h3>
                         <p class="conversation-preview">${preview}</p>
                     </ion-label>
+                    <div class="conversation-actions" slot="end">
+                        <ion-button fill="clear" class="delete-button" onclick="deleteConversation('${conv.id}', event)">
+                            <ion-icon name="trash" slot="icon-only"></ion-icon>
+                        </ion-button>
+                    </div>
                 `;
                 
+                item.onclick = () => loadConversation(conv.id);
                 listContainer.appendChild(item);
             });
         }
